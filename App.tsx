@@ -9,7 +9,7 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>Hello, World!</Text>
       <Text style={styles.title}>Aisha Baimukan</Text>
-      <Text style={styles.count}>{`Likes: ${likes}`}</Text>
+      <Text style={styles.count}>Likes: {likes}</Text>
       <Pressable onPress={() => setLikes(likes + 1)} style={styles.button}>
         <Text style={styles.buttonText}>Like</Text>
       </Pressable>
