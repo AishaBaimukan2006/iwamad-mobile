@@ -22,7 +22,7 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
-    "export:web": "expo export --platform web --output-dir docs && node -e \"require('fs').writeFileSync('docs/.nojekyll','')\"",
+    "export:web": "expo export --platform web --output-dir docs && node -e \"const fs=require('fs');fs.writeFileSync('docs/.nojekyll','');fs.copyFileSync('docs/index.html','docs/404.html')\"",
     "ios": "expo start --ios",
     "web": "expo start --web"
   },
