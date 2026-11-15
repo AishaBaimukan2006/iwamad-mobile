@@ -1,20 +1,51 @@
 import { useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { router } from 'expo-router';
 import EventRow from '../../src/components/EventRow';
-import { events } from '../../src/data/events';
+import { useEvents } from '../../src/hooks/useEvents';
 
 export default function EventsScreen() {
+  const { data, isPending, isError, error, refetch, isRefetching } = useEvents();
   const [savedIds, setSavedIds] = useState<number[]>([]);
   const [query, setQuery] = useState('');
-
-  const visibleEvents = events.filter((e) =>
-    e.title.toLowerCase().includes(query.toLowerCase())
-  );
 
   function toggleSaved(id: number) {
     setSavedIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
   }
+
+  if (isPending) {
+    return (
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.center}>
+        <ActivityIndicator size="large" />
+        <Text>Loading events</Text>
+      </ScrollView>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.center}>
+        <Text style={styles.errorTitle}>Could not load events</Text>
+        <Text>{error.message}</Text>
+        <Pressable onPress={() => refetch()} style={styles.button}>
+          <Text style={styles.buttonText}>Try again</Text>
+        </Pressable>
+      </ScrollView>
+    );
+  }
+
+  const visibleEvents = (data ?? []).filter((e) =>
+    e.title.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <FlatList
@@ -23,6 +54,8 @@ export default function EventsScreen() {
       contentContainerStyle={styles.content}
       data={visibleEvents}
       keyExtractor={(e) => String(e.id)}
+      refreshing={isRefetching}
+      onRefresh={() => refetch()}
       ListHeaderComponent={
         <View>
           <TextInput
@@ -51,6 +84,27 @@ export default function EventsScreen() {
 const styles = StyleSheet.create({
   content: {
     padding: 16,
+  },
+  center: {
+    padding: 24,
+    alignItems: 'center',
+    gap: 12,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  button: {
+    minHeight: 44,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    backgroundColor: '#2563eb',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
   },
   search: {
     minHeight: 44,
